@@ -59,49 +59,79 @@ Real files get committed to your repo (not a submodule), so `git clone` just wor
 > git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
 > ```
 
-### Codex, Gemini CLI, or Cursor
+### Other AI Agents
 
-gstack works on any agent that supports the [SKILL.md standard](https://github.com/anthropics/claude-code). Skills live in `.agents/skills/` and are discovered automatically.
+gstack works on 8 AI coding agents, not just Claude. All 31 skills work across
+every supported agent. Setup auto-detects which agents you have installed, or
+you can target a specific one.
 
-Install to one repo:
+#### Auto-detect (installs for every agent on your machine)
 
 ```bash
-git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git .agents/skills/gstack
-cd .agents/skills/gstack && ./setup --host codex
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup
 ```
 
-When setup runs from `.agents/skills/gstack`, it installs the generated Codex skills next to it in the same repo and does not write to `~/.codex/skills`.
-
-Install once for your user account:
+#### OpenAI Codex CLI
 
 ```bash
 git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
 cd ~/gstack && ./setup --host codex
 ```
 
-`setup --host codex` creates the runtime root at `~/.codex/skills/gstack` and
-links the generated Codex skills at the top level. This avoids duplicate skill
-discovery from the source repo checkout.
+Skills install to `~/.codex/skills/gstack-*/`. For repo-local installs, clone
+into `.agents/skills/gstack` instead.
 
-Or let setup auto-detect which agents you have installed:
+#### OpenCode
 
 ```bash
 git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
-cd ~/gstack && ./setup --host auto
+cd ~/gstack && ./setup --host opencode
 ```
 
-For Codex-compatible hosts, setup now supports both repo-local installs from `.agents/skills/gstack` and user-global installs from `~/.codex/skills/gstack`. All 31 skills work across all supported agents. Hook-based safety skills (careful, freeze, guard) use inline safety advisory prose on non-Claude hosts.
+Skills install to `~/.config/opencode/skills/gstack-*/`.
 
-### Factory Droid
+#### Cursor
 
-gstack works with [Factory Droid](https://factory.ai). Skills install to `.factory/skills/` and are discovered automatically. Sensitive skills (ship, land-and-deploy, guard) use `disable-model-invocation: true` so Droids don't auto-invoke them.
+```bash
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host cursor
+```
+
+Skills install to `~/.cursor/skills/gstack-*/`.
+
+#### Factory Droid
 
 ```bash
 git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
 cd ~/gstack && ./setup --host factory
 ```
 
-Skills install to `~/.factory/skills/gstack-*/`. Restart `droid` to rescan skills, then type `/qa` to get started.
+Skills install to `~/.factory/skills/gstack-*/`. Sensitive skills use
+`disable-model-invocation: true` so Droids don't auto-invoke them.
+
+#### OpenClaw
+
+```bash
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host openclaw
+```
+
+Skills install to `~/.openclaw/skills/gstack-*/`. Tool names are rewritten
+for OpenClaw's tool system (exec, read, write, edit, sessions_spawn).
+
+#### Slate / Kiro
+
+```bash
+./setup --host slate       # Slate (Random Labs)
+./setup --host kiro        # Amazon Kiro
+```
+
+Hook-based safety skills (careful, freeze, guard) use inline safety advisory
+prose on all non-Claude hosts.
+
+**Want to add support for another agent?** See [docs/ADDING_A_HOST.md](docs/ADDING_A_HOST.md).
+It's one TypeScript config file, zero code changes.
 
 ### Voice input (AquaVoice, Whisper, etc.)
 
@@ -166,7 +196,7 @@ Each skill feeds into the next. `/office-hours` writes a design doc that `/plan-
 | `/plan-ceo-review` | **CEO / Founder** | Rethink the problem. Find the 10-star product hiding inside the request. Four modes: Expansion, Selective Expansion, Hold Scope, Reduction. |
 | `/plan-eng-review` | **Eng Manager** | Lock in architecture, data flow, diagrams, edge cases, and tests. Forces hidden assumptions into the open. |
 | `/plan-design-review` | **Senior Designer** | Rates each design dimension 0-10, explains what a 10 looks like, then edits the plan to get there. AI Slop detection. Interactive — one AskUserQuestion per design choice. |
-| `/plan-devex-review` | **Developer Experience Lead** | Evaluates plans through Addy Osmani's DX framework: zero friction, learn by doing, fight uncertainty. Rates 8 DX dimensions 0-10 with a DX Scorecard. Use for developer-facing products — APIs, CLIs, SDKs, libraries, platforms, docs. |
+| `/plan-devex-review` | **Developer Experience Lead** | Interactive DX review: explores developer personas, benchmarks against competitors' TTHW, designs your magical moment, traces friction points step by step. Three modes: DX EXPANSION, DX POLISH, DX TRIAGE. 20-45 forcing questions. |
 | `/design-consultation` | **Design Partner** | Build a complete design system from scratch. Researches the landscape, proposes creative risks, generates realistic product mockups. |
 | `/review` | **Staff Engineer** | Find the bugs that pass CI but blow up in production. Auto-fixes the obvious ones. Flags completeness gaps. |
 | `/investigate` | **Debugger** | Systematic root-cause debugging. Iron Law: no fixes without investigation. Traces data flow, tests hypotheses, stops after 3 failed fixes. |
